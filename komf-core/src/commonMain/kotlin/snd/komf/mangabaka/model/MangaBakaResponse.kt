@@ -11,8 +11,8 @@ data class MangaBakaResponse<T>(
 
 @Serializable
 data class MangaBakaPagination(
-    val count: Int,
-    val next: String?,
-    val previous: String?,
-    val limit: Int
+    val count: Int = 0,
+    val next: String? = null,
+    val previous: String? = null,
+    val limit: Int = 0
 )

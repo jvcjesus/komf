@@ -200,9 +200,12 @@ data class MangaBakaConfigDto(
     override val authorRoles: Collection<KomfAuthorRole>,
     override val artistRoles: Collection<KomfAuthorRole>,
     val mode: MangaBakaMode,
-) : ProviderConf {
-    override val bookMetadata: BookMetadataConfigDto? = null
-}
+    override val bookMetadata: BookMetadataConfigDto? = null,
+    val collection: MangaBakaCollectionTargetDto? = null,
+) : ProviderConf
+
+@Serializable
+data class MangaBakaCollectionTargetDto(val language: String, val edition: String, val medium: String)
 
 @Serializable
 data class SeriesMetadataConfigDto(

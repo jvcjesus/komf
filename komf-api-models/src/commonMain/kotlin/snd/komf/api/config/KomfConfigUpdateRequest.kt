@@ -175,6 +175,8 @@ class MangaBakaConfigUpdateRequest(
     val authorRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
     val artistRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
     val mode: PatchValue<MangaBakaMode> = PatchValue.Unset,
+    val bookMetadata: PatchValue<BookMetadataConfigUpdateRequest> = PatchValue.Unset,
+    val collection: PatchValue<MangaBakaCollectionTargetDto> = PatchValue.Unset,
 )
 
 @Serializable

@@ -240,7 +240,11 @@ class AppConfigMapper {
             authorRoles = config.authorRoles.map { it.fromAuthorRole() },
             artistRoles = config.artistRoles.map { it.fromAuthorRole() },
             seriesMetadata = toDto(config.seriesMetadata),
-            mode = MangaBakaMode.valueOf(config.mode.name)
+            mode = MangaBakaMode.valueOf(config.mode.name),
+            bookMetadata = toDto(config.bookMetadata),
+            collection = config.collection?.let {
+                snd.komf.api.config.MangaBakaCollectionTargetDto(it.language, it.edition, it.medium)
+            },
         )
     }
 

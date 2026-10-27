@@ -649,7 +649,12 @@ class ProvidersModule(
             ),
             nameMatcher = config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher,
             coverFetchClient = if (config.seriesMetadata.thumbnail) coverFetchClient else null,
-            mediaType = config.mediaType
+            mediaType = config.mediaType,
+            collectionTarget = config.collection,
+            bookConfig = config.bookMetadata,
+            workCoverFetchClient = coverFetchClient,
+            includeBooks = config.seriesMetadata.books,
+            includeTotalCount = config.seriesMetadata.totalBookCount,
         )
     }
 

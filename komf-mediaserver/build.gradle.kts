@@ -14,6 +14,9 @@ kotlin {
     }
 
     sourceSets {
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
         all {
             languageSettings.optIn("kotlin.time.ExperimentalTime")
         }

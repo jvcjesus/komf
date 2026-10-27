@@ -1,0 +1,122 @@
+[
+  {
+    "id": "019e1d1b-b513-7483-81c1-c02265d2336a",
+    "series_id": 1357,
+    "title": "Goodnight Punpun",
+    "language": {
+      "iso": "en",
+      "language": "English (English)"
+    },
+    "publisher": {
+      "id": 240,
+      "type": "imprint",
+      "sub_type": "both",
+      "aliases": null,
+      "parent_id": 7,
+      "name": "VIZ Signature",
+      "canonical_url": "https://mangabaka.org/publisher/240/VIZ-Signature",
+      "languages": [
+        "en"
+      ],
+      "country_of_origin": "US",
+      "founded": null,
+      "closed": null,
+      "merged_with": null
+    },
+    "edition": {
+      "id": "019a5f27-bbf6-7000-8000-000000000001",
+      "name": "Standard Edition",
+      "language": {
+        "iso": "en",
+        "language": "English (English)"
+      },
+      "description": "Standard",
+      "override_text": null
+    },
+    "type": "volume",
+    "format": "paged",
+    "medium": "paperback",
+    "status": "unknown",
+    "reading": "rtl",
+    "licensed": true,
+    "description": {
+      "desc": "Meet Punpun Punyama. He’s an average kid in an average town.He wants to win a Nobel Prize and save the world.He wants the girl he has a crush on to like him back.He wants to find some porn.That’s what he wants, but what does he get…?",
+      "source": "VIZ Signature"
+    },
+    "note": null,
+    "start_date": "2016-03-15",
+    "end_date": null,
+    "links": [
+      {
+        "type": "publisher",
+        "link": "https://www.viz.com/goodnight-punpun",
+        "language": "en"
+      }
+    ],
+    "related_collection_id": null,
+    "count_main": 7,
+    "count_extra": 0,
+    "count_other": 0,
+    "updated_at": "2026-05-12T16:53:35.647Z"
+  },
+  {
+    "id": "019e1d1b-b52d-7a5e-b609-18f87987c7a4",
+    "series_id": 1357,
+    "title": "Goodnight Punpun",
+    "language": {
+      "iso": "en",
+      "language": "English (English)"
+    },
+    "publisher": {
+      "id": 240,
+      "type": "imprint",
+      "sub_type": "both",
+      "aliases": null,
+      "parent_id": 7,
+      "name": "VIZ Signature",
+      "canonical_url": "https://mangabaka.org/publisher/240/VIZ-Signature",
+      "languages": [
+        "en"
+      ],
+      "country_of_origin": "US",
+      "founded": null,
+      "closed": null,
+      "merged_with": null
+    },
+    "edition": {
+      "id": "019a5f27-bbf6-7000-8000-000000000001",
+      "name": "Standard Edition",
+      "language": {
+        "iso": "en",
+        "language": "English (English)"
+      },
+      "description": "Standard",
+      "override_text": null
+    },
+    "type": "volume",
+    "format": "paged",
+    "medium": "digital",
+    "status": "unknown",
+    "reading": "rtl",
+    "licensed": true,
+    "description": {
+      "desc": "Meet Punpun Punyama. He’s an average kid in an average town.He wants to win a Nobel Prize and save the world.He wants the girl he has a crush on to like him back.He wants to find some porn.That’s what he wants, but what does he get…?",
+      "source": "VIZ Signature"
+    },
+    "note": null,
+    "start_date": "2016-03-15",
+    "end_date": null,
+    "links": [
+      {
+        "type": "publisher",
+        "link": "https://www.viz.com/goodnight-punpun",
+        "language": "en"
+      }
+    ],
+    "related_collection_id": null,
+    "count_main": 7,
+    "count_extra": 0,
+    "count_other": 0,
+    "updated_at": "2026-05-12T16:53:35.676Z"
+  }
+]

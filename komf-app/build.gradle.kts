@@ -24,6 +24,7 @@ java {
 }
 
 dependencies {
+    testImplementation(kotlin("test"))
     implementation(project(":komf-core"))
     implementation(project(":komf-mediaserver"))
     implementation(project(":komf-notifications"))

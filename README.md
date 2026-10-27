@@ -14,6 +14,8 @@ Browser web extension will let configure komf and identify series directly from 
 - [Firefox download](https://addons.mozilla.org/en-US/firefox/addon/komf/)
 - deprecated [Komf userscript](https://github.com/Snd-R/komf-userscript) is still functional, but it will not receive new updates
 
+This fork adds opt-in [MangaBaka collection/work metadata and exact-volume covers](docs/mangabaka-exact-works.md) through the existing Komga API integration. Build this branch to use it; upstream release artifacts do not include these changes.
+
 ## Building
 
 To build the application, follow these steps:

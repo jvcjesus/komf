@@ -150,21 +150,16 @@ class MetadataUpdater(
         val selectThumbnail = overrideExistingCovers ||
                 thumbnails.all { it.type == "GENERATED" || it.id == existingMatch?.thumbnailId }
 
-        val uploadedThumbnail = thumbnail?.let {
-            mediaServerClient.uploadBookThumbnail(
-                bookId = bookId,
-                thumbnail = thumbnail,
-                selected = selectThumbnail
-            )
-        }
-
-        existingMatch?.thumbnailId?.let { thumb ->
-            if (thumbnails.any { it.id == thumb }) {
-                mediaServerClient.deleteBookThumbnail(bookId, thumb)
+        return replaceManagedThumbnail(
+            existingMatch?.thumbnailId,
+            thumbnail,
+            upload = {
+                mediaServerClient.uploadBookThumbnail(bookId, it, selected = selectThumbnail)?.id
+            },
+            remove = { old ->
+                if (thumbnails.any { it.id == old }) mediaServerClient.deleteBookThumbnail(bookId, old)
             }
-        }
-
-        return uploadedThumbnail?.id
+        )
     }
 
     private suspend fun replaceSeriesThumbnail(
@@ -176,22 +171,16 @@ class MetadataUpdater(
 
         val selectThumbnail = overrideExistingCovers || thumbnails.isEmpty()
 
-        val uploadedThumbnail = thumbnail?.let {
-            mediaServerClient.uploadSeriesThumbnail(
-                seriesId = seriesId,
-                thumbnail = thumbnail,
-                selected = selectThumbnail,
-                lock = lockCovers,
-            )
-        }
-
-        matchedSeries?.thumbnailId?.let { thumb ->
-            if (thumbnails.any { it.id == thumb }) {
-                mediaServerClient.deleteSeriesThumbnail(seriesId, thumb)
+        return replaceManagedThumbnail(
+            matchedSeries?.thumbnailId,
+            thumbnail,
+            upload = {
+                mediaServerClient.uploadSeriesThumbnail(seriesId, it, selected = selectThumbnail, lock = lockCovers)?.id
+            },
+            remove = { old ->
+                if (thumbnails.any { it.id == old }) mediaServerClient.deleteSeriesThumbnail(seriesId, old)
             }
-        }
-
-        return uploadedThumbnail?.id
+        )
     }
 
     private suspend fun resetSeriesMetadata(series: MediaServerSeries, removeComicInfo: Boolean) {
@@ -204,14 +193,22 @@ class MetadataUpdater(
                 resetBookMetadata(book, index + 1)
             }
 
-        replaceSeriesThumbnail(series.id, null)
+        seriesThumbnailsRepository.findFor(series.id)?.thumbnailId?.let {
+            if (mediaServerClient.getSeriesThumbnails(series.id).any { thumbnail -> thumbnail.id == it }) {
+                mediaServerClient.deleteSeriesThumbnail(series.id, it)
+            }
+        }
         seriesThumbnailsRepository.delete(series.id)
     }
 
     private suspend fun resetBookMetadata(book: MediaServerBook, sortNumber: Int?) {
         mediaServerClient.resetBookMetadata(book.id, book.name, sortNumber)
 
-        replaceBookThumbnail(book.id, null)
+        bookThumbnailsRepository.findFor(book.id)?.thumbnailId?.let {
+            if (mediaServerClient.getBookThumbnails(book.id).any { thumbnail -> thumbnail.id == it }) {
+                mediaServerClient.deleteBookThumbnail(book.id, it)
+            }
+        }
         bookThumbnailsRepository.delete(book.id)
     }
 

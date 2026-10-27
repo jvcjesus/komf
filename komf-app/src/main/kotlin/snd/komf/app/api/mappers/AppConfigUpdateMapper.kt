@@ -238,7 +238,16 @@ class AppConfigUpdateMapper {
                 is PatchValue.Some -> mode.value.toNameMatchingMode()
                 PatchValue.Unset -> config.nameMatchingMode
             },
-            mode = patch.mode.getOrNull()?.toMangaBakaMode() ?: config.mode
+            mode = patch.mode.getOrNull()?.toMangaBakaMode() ?: config.mode,
+            bookMetadata = patch.bookMetadata.getOrNull()
+                ?.let { bookMetadataConfig(config.bookMetadata, it) } ?: config.bookMetadata,
+            collection = when (val selection = patch.collection) {
+                PatchValue.None -> null
+                PatchValue.Unset -> config.collection
+                is PatchValue.Some -> selection.value.let {
+                    snd.komf.providers.MangaBakaCollectionTarget(it.language, it.edition, it.medium)
+                }
+            },
         )
     }
 

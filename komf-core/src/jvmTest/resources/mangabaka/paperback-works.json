@@ -1,0 +1,121 @@
+[
+  {
+    "id": "019e1d1b-b51b-7ce4-85aa-32b80a9f0271",
+    "sequence_numeric": 1,
+    "description": {
+      "desc": "Meet Punpun Punyama. He’s an average kid in an average town.He wants to win a Nobel Prize and save the world.He wants the girl he has a crush on to like him back.He wants to find some porn.That’s what he wants, but what does he get…?",
+      "source": "VIZ Signature"
+    },
+    "release_date": "2016-03-15",
+    "pages": 448,
+    "identifiers": [
+      {
+        "id": "9781421586205",
+        "name": "isbn"
+      }
+    ],
+    "images": []
+  },
+  {
+    "id": "019e1d1b-b583-7c46-89cb-86a3019e7439",
+    "sequence_numeric": 2,
+    "description": {
+      "desc": "Punpun was an average kid in an average town…But things have changed.The love of his life wants to kill him.His parents got divorced.And God is being mean to him.What are you going to do now, Punpun?",
+      "source": "VIZ Signature"
+    },
+    "release_date": "2016-06-21",
+    "pages": 432,
+    "identifiers": [
+      {
+        "id": "9781421586212",
+        "name": "isbn"
+      }
+    ],
+    "images": []
+  },
+  {
+    "id": "019e1d1b-bca4-7119-b2e0-269d8c40b756",
+    "sequence_numeric": 3,
+    "description": {
+      "desc": "Like most kids his age, Punpun is in high school.In fact, he has made it into the best high school in town.He is such a good student.He studies so he doesn’t have to think about his life.Maybe a meteor will crash into Earth and destroy everything.A guy can wish, Punpun…",
+      "source": "VIZ Signature"
+    },
+    "release_date": "2016-09-20",
+    "pages": 440,
+    "identifiers": [
+      {
+        "id": "9781421586229",
+        "name": "isbn"
+      }
+    ],
+    "images": []
+  },
+  {
+    "id": "019e1d1b-b562-7e5e-9a34-17859e47c853",
+    "sequence_numeric": 4,
+    "description": {
+      "desc": "Punpun is on his own now.His mom is dead and his dad is useless.When he’s not working crappy part-time jobs, he spends most of his time on the floor of his room.But buck up, Punpun! It’s only for the rest of your life, right?",
+      "source": "VIZ Signature"
+    },
+    "release_date": "2016-12-20",
+    "pages": 456,
+    "identifiers": [
+      {
+        "id": "9781421586236",
+        "name": "isbn"
+      }
+    ],
+    "images": []
+  },
+  {
+    "id": "019e1d1b-b573-7c2a-ae5d-ad07d63a69f2",
+    "sequence_numeric": 5,
+    "description": {
+      "desc": "Punpun gave himself a strict deadline.By the time his lease is up, he and Aiko will be together, his life will be better and he’ll be someone…Or else.Hey, Punpun, your lease just ran out.",
+      "source": "VIZ Signature"
+    },
+    "release_date": "2017-03-21",
+    "pages": 448,
+    "identifiers": [
+      {
+        "id": "9781421586243",
+        "name": "isbn"
+      }
+    ],
+    "images": []
+  },
+  {
+    "id": "019e1d1b-bcba-7ab9-a652-41b210d2abea",
+    "sequence_numeric": 6,
+    "description": {
+      "desc": "Punpun has finally reunited with the love of his life, Aiko!But she isn’t as exciting and wonderful as he remembered.And she doesn’t make him exciting and wonderful.In fact, he thinks they’re both terribly banal.And now they’ve done something terrible…Punpun, what do you do when there’s no way out?",
+      "source": "VIZ Signature"
+    },
+    "release_date": "2017-06-20",
+    "pages": 456,
+    "identifiers": [
+      {
+        "id": "9781421586250",
+        "name": "isbn"
+      }
+    ],
+    "images": []
+  },
+  {
+    "id": "019e1d1b-bc89-798c-ba51-1db7bbc6feba",
+    "sequence_numeric": 7,
+    "description": {
+      "desc": "This is the end, Punpun.",
+      "source": "VIZ Signature"
+    },
+    "release_date": "2017-09-19",
+    "pages": 272,
+    "identifiers": [
+      {
+        "id": "9781421586267",
+        "name": "isbn"
+      }
+    ],
+    "images": []
+  }
+]

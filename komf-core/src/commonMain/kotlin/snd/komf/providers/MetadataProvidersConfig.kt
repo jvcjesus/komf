@@ -72,7 +72,13 @@ data class MangaBakaConfig(
     val artistRoles: Collection<AuthorRole> = listOf(PENCILLER, INKER, COLORIST, LETTERER, COVER),
 
     val mode: MangaBakaMode = MangaBakaMode.API,
+    val collection: MangaBakaCollectionTarget? = null,
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
 )
+
+/** All three selectors are required. No cross-edition or cross-medium fallback. */
+@Serializable
+data class MangaBakaCollectionTarget(val language: String, val edition: String, val medium: String)
 
 @Serializable
 enum class MangaBakaMode {
