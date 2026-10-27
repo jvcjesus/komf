@@ -48,6 +48,21 @@ class MetadataUpdater(
             mediaServerClient.refreshMetadata(series.libraryId, series.id)
     }
 
+    fun requireBookApiMode() {
+        require(mediaServerClient.supportsBookScopedMetadataUpdates) { "This media-server adapter does not guarantee book-only metadata and thumbnail writes" }
+        require(updateModes == setOf(UpdateMode.API)) { "Book identification requires updateModes: [API]; ComicInfo writes are not supported" }
+    }
+
+    /** Never delegates to the series updater or refreshes the containing series. */
+    suspend fun updateBookMetadata(book: MediaServerBook, metadata: BookMetadata, seriesMetadata: SeriesMetadata) {
+        requireBookApiMode()
+        require(!book.deleted) { "Cannot update a deleted book" }
+        val processed = postProcessor.processBook(book, metadata, seriesMetadata)
+        val bookMetadata = requireNotNull(processed.bookMetadata[book])
+        updateBookApiMetadata(book, bookMetadata, processed.seriesMetadata)
+        updateBookThumbnail(book, bookMetadata)
+    }
+
     suspend fun resetLibraryMetadata(libraryId: MediaServerLibraryId, removeComicInfo: Boolean) {
         var pageNumber = 1
         do {
@@ -113,8 +128,7 @@ class MetadataUpdater(
         logger.info { "updating book ${book.name}" }
         updateModes.forEach { mode ->
             when (mode) {
-                UpdateMode.API -> metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book)
-                    .let { mediaServerClient.updateBookMetadata(book.id, it) }
+                UpdateMode.API -> updateBookApiMetadata(book, metadata, seriesMeta)
 
 
                 UpdateMode.COMIC_INFO -> {
@@ -129,6 +143,15 @@ class MetadataUpdater(
             }
         }
 
+        updateBookThumbnail(book, metadata)
+    }
+
+    private suspend fun updateBookApiMetadata(book: MediaServerBook, metadata: BookMetadata?, seriesMeta: SeriesMetadata) {
+        val update = metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book)
+        mediaServerClient.updateBookMetadata(book.id, update)
+    }
+
+    private suspend fun updateBookThumbnail(book: MediaServerBook, metadata: BookMetadata?) {
         val newThumbnail = if (uploadBookCovers) metadata?.thumbnail else null
         val thumbnailId = replaceBookThumbnail(book.id, newThumbnail)
 

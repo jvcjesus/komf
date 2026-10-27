@@ -18,6 +18,8 @@ import snd.komf.api.KomfErrorResponse
 import snd.komf.api.KomfProviderSeriesId
 import snd.komf.api.job.KomfMetadataJobId
 import snd.komf.api.metadata.KomfIdentifyRequest
+import snd.komf.api.metadata.KomfIdentifyBookRequest
+import snd.komf.mediaserver.model.MediaServerBookId
 import snd.komf.api.metadata.KomfMetadataJobResponse
 import snd.komf.api.metadata.KomfMetadataSeriesSearchResult
 import snd.komf.app.api.mappers.fromProvider
@@ -43,6 +45,7 @@ class MetadataRoutes(
             searchSeriesRoute()
             getSeriesCoverRoute()
             identifySeriesRoute()
+            identifyBookRoute()
 
             matchSeriesRoute()
             matchLibraryRoute()
@@ -141,6 +144,36 @@ class MetadataRoutes(
             call.respond(
                 KomfMetadataJobResponse(KomfMetadataJobId(jobId.value.toString()))
             )
+        }
+    }
+
+    private fun Route.identifyBookRoute() {
+        post("/identify/book") {
+            val request = call.receive<KomfIdentifyBookRequest>()
+            if (request.bookId.value.isBlank() || request.providerSeriesId.value.isBlank()) {
+                call.respond(HttpStatusCode.BadRequest, KomfErrorResponse("Book ID and provider series ID are required"))
+                return@post
+            }
+            val client = mediaServerClient.first()
+            val book = client.getBook(MediaServerBookId(request.bookId.value))
+            val series = client.getSeries(book.seriesId)
+            val expectedLibraryId = request.libraryId
+            if (expectedLibraryId != null && expectedLibraryId.value != series.libraryId.value) {
+                call.respond(HttpStatusCode.BadRequest, KomfErrorResponse("Book does not belong to the requested library"))
+                return@post
+            }
+            try {
+                val jobId = metadataServiceProvider.first().metadataServiceFor(series.libraryId.value)
+                    .setBookMetadata(
+                        bookId = MediaServerBookId(request.bookId.value),
+                        providerName = request.provider.toProvider(),
+                        providerSeriesId = ProviderSeriesId(request.providerSeriesId.value),
+                        expectedLibraryId = series.libraryId,
+                    )
+                call.respond(KomfMetadataJobResponse(KomfMetadataJobId(jobId.value.toString())))
+            } catch (exception: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, KomfErrorResponse(exception.message ?: "Invalid book identification"))
+            }
         }
     }
 

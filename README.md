@@ -16,6 +16,8 @@ Browser web extension will let configure komf and identify series directly from 
 
 This fork adds opt-in [MangaBaka collection/work metadata and exact-volume covers](docs/mangabaka-exact-works.md) through the existing Komga API integration. Build this branch to use it; upstream release artifacts do not include these changes.
 
+The separate [book identification action](docs/book-identification.md) updates one book through the media-server API without touching its series or siblings.
+
 ## Building
 
 To build the application, follow these steps:

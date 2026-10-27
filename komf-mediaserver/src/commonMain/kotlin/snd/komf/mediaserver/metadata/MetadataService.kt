@@ -26,6 +26,7 @@ import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderSeriesEvent
 import snd.komf.mediaserver.jobs.MetadataJobId
 import snd.komf.mediaserver.match.repository.SeriesMatchRepository
 import snd.komf.mediaserver.model.MediaServerBook
+import snd.komf.mediaserver.model.MediaServerBookId
 import snd.komf.mediaserver.model.MediaServerLibraryId
 import snd.komf.mediaserver.model.MediaServerSeries
 import snd.komf.mediaserver.model.MediaServerSeriesId
@@ -134,6 +135,63 @@ class MetadataService(
         return jobId
     }
 
+    /** Explicit provider identity, one media-server book, API writes only. */
+    suspend fun setBookMetadata(
+        bookId: MediaServerBookId,
+        providerName: CoreProviders,
+        providerSeriesId: ProviderSeriesId,
+        expectedLibraryId: MediaServerLibraryId? = null,
+    ): MetadataJobId {
+        require(bookId.value.isNotBlank() && providerSeriesId.value.isNotBlank()) { "Book ID and provider series ID are required" }
+        metadataUpdateService.requireBookApiMode()
+        val book = mediaServerClient.getBook(bookId)
+        require(book.id == bookId) { "Media server returned a different book" }
+        val series = mediaServerClient.getSeries(book.seriesId)
+        validateBookContext(book, series, expectedLibraryId)
+        require(mediaServerClient.getLibrary(series.libraryId).id == series.libraryId) { "Invalid containing library" }
+        val provider = requireNotNull(metadataProviders.provider(series.libraryId.value, providerName)) {
+            "Provider $providerName is not enabled for the book's library"
+        }
+        logger.info { "Identifying only book ${book.id} in series ${series.id} using $providerName $providerSeriesId" }
+
+        return launchJob(series.id) { eventFlow ->
+            val seriesMetadata = getSeriesMetadata(provider, providerSeriesId, eventFlow)
+            val primary = getBookMetadata(listOf(book), seriesMetadata, provider, null, eventFlow, strict = true)
+            val primaryBook = requireNotNull(primary[book]) { "No exact provider work for the requested book" }
+            eventFlow.emit(ProviderCompletedEvent(providerName))
+            val metadata = if (aggregateMetadata) {
+                aggregateMetadataFromProviders(
+                    series = series,
+                    books = listOf(book),
+                    metadata = SeriesAndBookMetadata(seriesMetadata.metadata, primary),
+                    providers = metadataProviders.providers(series.libraryId.value).filter { it != provider },
+                    edition = null,
+                    eventFlow = eventFlow,
+                    strict = true,
+                )
+            } else SeriesAndBookMetadata(seriesMetadata.metadata, primary)
+            val resolved = requireNotNull(metadata.bookMetadata[book])
+                .copy(thumbnail = primaryBook.thumbnail) // never replace missing exact artwork with another provider's cover
+
+            // Re-read only the target: respect current locks and refuse moves/renames during resolution.
+            val current = mediaServerClient.getBook(bookId)
+            require(current.id == bookId && current.seriesId == book.seriesId &&
+                    current.name == book.name && current.number == book.number) { "Target book changed during identification" }
+            validateBookContext(current, mediaServerClient.getSeries(current.seriesId), series.libraryId)
+            eventFlow.emit(PostProcessingStartEvent)
+            metadataUpdateService.updateBookMetadata(current, resolved, metadata.seriesMetadata)
+            // A book identification must not change the series-wide manual provider mapping.
+        }
+    }
+
+    private fun validateBookContext(book: MediaServerBook, series: MediaServerSeries, expectedLibraryId: MediaServerLibraryId?) {
+        require(!book.deleted && !series.deleted) { "Book or containing series is deleted" }
+        require(book.seriesId == series.id && (book.libraryId == null || book.libraryId == series.libraryId)) {
+            "Book/series/library identity mismatch"
+        }
+        require(expectedLibraryId == null || series.libraryId == expectedLibraryId) { "Book does not belong to the expected library" }
+    }
+
     fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
         coroutineScope.launch {
             var errorCount = 0
@@ -223,7 +281,8 @@ class MetadataService(
         searchTitles: Collection<String>,
         provider: MetadataProvider,
         bookEdition: String?,
-        eventFlow: MutableSharedFlow<MetadataJobEvent>
+        eventFlow: MutableSharedFlow<MetadataJobEvent>,
+        strict: Boolean = false,
     ): SeriesAndBookMetadata? {
         for (searchTitle in searchTitles) {
             logger.info { "searching \"$searchTitle\" using ${provider.providerName()}" }
@@ -237,7 +296,7 @@ class MetadataService(
 
             if (result != null) {
                 logger.info { "found match: \"${result.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${result.id}" }
-                val bookMetadata = getBookMetadata(books, result, provider, bookEdition, eventFlow)
+                val bookMetadata = getBookMetadata(books, result, provider, bookEdition, eventFlow, strict)
                 return SeriesAndBookMetadata(result.metadata, bookMetadata)
             }
         }
@@ -250,8 +309,9 @@ class MetadataService(
         provider: MetadataProvider,
         bookEdition: String?,
         eventFlow: MutableSharedFlow<MetadataJobEvent>,
+        strict: Boolean = false,
     ): Map<MediaServerBook, BookMetadata?> {
-        val metadataMatch = associateBookMetadata(books, seriesMeta.books, bookEdition)
+        val metadataMatch = associateBookMetadata(books, seriesMeta.books, bookEdition, strict)
 
         val fetchSize = metadataMatch.filterValues { it != null }.size
         var progress = 1
@@ -262,7 +322,14 @@ class MetadataService(
                     eventFlow.emit(ProviderBookEvent(provider.providerName(), fetchSize, progress))
                     progress += 1
 
-                    book to provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id).metadata
+                    val fetched = provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id)
+                    if (strict) {
+                        logger.info { "Resolved book ${book.id} to ${provider.providerName()} series ${seriesMeta.id} work ${seriesBookMeta.id}" }
+                        require(fetched.id == null || fetched.id == seriesBookMeta.id) { "Provider returned a different work" }
+                        require(fetched.seriesId == null || fetched.seriesId == seriesMeta.id) { "Provider returned a different series" }
+                        require(fetched.metadata.number == null || fetched.metadata.number == seriesBookMeta.number) { "Provider returned a different work sequence" }
+                    }
+                    book to fetched.metadata
                 } else {
                     book to null
                 }
@@ -276,8 +343,25 @@ class MetadataService(
     private fun associateBookMetadata(
         books: Collection<MediaServerBook>,
         providerBooks: Collection<SeriesBook>,
-        edition: String? = null
+        edition: String? = null,
+        strict: Boolean = false,
     ): Map<MediaServerBook, SeriesBook?> {
+        if (strict) {
+            return books.associateWith { book ->
+                val number = requireNotNull(getBookNumber(book.name)) { "Cannot determine an exact number for ${book.id}" }
+                val labels = BookNameParser.getExtraData(book.name).map { it.lowercase() }
+                val candidates = providerBooks.filter {
+                    val candidateEdition = it.edition
+                    it.number == number && when {
+                        edition != null -> candidateEdition.equals(edition, true)
+                        candidateEdition == null -> true
+                        else -> candidateEdition.lowercase() in labels
+                    }
+                }
+                require(candidates.size == 1) { "Expected exactly one provider work for ${book.id}; found ${candidates.size}" }
+                candidates.single()
+            }
+        }
         val editionBooks = providerBooks.groupBy { it.edition }
 
         if (edition != null) {
@@ -323,7 +407,8 @@ class MetadataService(
         metadata: SeriesAndBookMetadata,
         providers: Collection<MetadataProvider>,
         edition: String?,
-        eventFlow: MutableSharedFlow<MetadataJobEvent>
+        eventFlow: MutableSharedFlow<MetadataJobEvent>,
+        strict: Boolean = false,
     ): SeriesAndBookMetadata {
         if (providers.isEmpty()) return metadata
         logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
@@ -341,7 +426,8 @@ class MetadataService(
                         searchTitles = searchTitles,
                         provider = provider,
                         bookEdition = edition,
-                        eventFlow = eventFlow
+                        eventFlow = eventFlow,
+                        strict = strict,
                     ).also {
                         eventFlow.emit(ProviderCompletedEvent(provider.providerName()))
                     }

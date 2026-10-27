@@ -38,6 +38,11 @@ class MetadataPostProcessor(
         return handleKomgaOneshot(seriesMetadata, bookMetadata)
     }
 
+    /** Book-only updates keep exact work fields/artwork, including for Komga oneshots. */
+    fun processBook(book: MediaServerBook, metadata: BookMetadata, seriesMetadata: SeriesMetadata): SeriesAndBookMetadata {
+        return SeriesAndBookMetadata(postProcessSeries(seriesMetadata), postProcessBooks(mapOf(book to metadata)))
+    }
+
     private fun postProcessSeries(series: SeriesMetadata): SeriesMetadata {
         val altTitles = if (alternativeSeriesTitles)
             series.titles.asSequence()

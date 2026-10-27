@@ -125,6 +125,12 @@ value class KomfServerSeriesId(val value: String) {
 
 @JvmInline
 @Serializable
+value class KomfServerBookId(val value: String) {
+    override fun toString() = value
+}
+
+@JvmInline
+@Serializable
 value class KomfServerLibraryId(val value: String) {
     override fun toString() = value
 }

@@ -58,6 +58,8 @@ class KomgaMediaServerClientAdapter(
     private val komgaCoverUploadLimit: Long
 ) : MediaServerClient {
 
+    override val supportsBookScopedMetadataUpdates: Boolean = true
+
     override suspend fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries {
         return komgaSeriesClient.getOneSeries(KomgaSeriesId(seriesId.value)).toMediaServerSeries()
     }

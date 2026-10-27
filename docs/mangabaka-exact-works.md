@@ -129,3 +129,5 @@ The client, API-model and notification test targets have no test sources. Androi
 and Wasm targets were not tested. Existing upstream deprecation warnings and an
 Android analytics-directory warning remain. No live library/API mutation or
 server deployment was performed.
+
+For an explicit one-book API operation, see [book identification](book-identification.md).

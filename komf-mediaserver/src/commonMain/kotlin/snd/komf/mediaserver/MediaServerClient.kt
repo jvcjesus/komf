@@ -15,6 +15,9 @@ import snd.komf.mediaserver.model.Page
 import snd.komf.model.Image
 
 interface MediaServerClient {
+    /** Both metadata and artwork writes must be confined to the supplied book ID. */
+    val supportsBookScopedMetadataUpdates: Boolean get() = false
+
     suspend fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries
     suspend fun getSeries(libraryId: MediaServerLibraryId, pageNumber: Int): Page<MediaServerSeries>
     suspend fun getSeriesThumbnail(seriesId: MediaServerSeriesId): Image?

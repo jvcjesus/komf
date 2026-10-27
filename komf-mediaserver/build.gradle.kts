@@ -16,7 +16,9 @@ kotlin {
     sourceSets {
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.ktor.client.mock)
         }
+        getByName("jvmTest").resources.srcDir(project(":komf-core").file("src/jvmTest/resources"))
         all {
             languageSettings.optIn("kotlin.time.ExperimentalTime")
         }

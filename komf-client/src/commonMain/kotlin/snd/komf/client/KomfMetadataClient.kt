@@ -17,6 +17,7 @@ import snd.komf.api.KomfServerSeriesId
 import snd.komf.api.MediaServer
 import snd.komf.api.UnknownKomfProvider
 import snd.komf.api.metadata.KomfIdentifyRequest
+import snd.komf.api.metadata.KomfIdentifyBookRequest
 import snd.komf.api.metadata.KomfMetadataJobResponse
 import snd.komf.api.metadata.KomfMetadataSeriesSearchResult
 
@@ -70,6 +71,13 @@ class KomfMetadataClient(
 
     suspend fun identifySeries(request: KomfIdentifyRequest): KomfMetadataJobResponse {
         return ktor.post("$metadataApiPrefix/identify") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.body()
+    }
+
+    suspend fun identifyBook(request: KomfIdentifyBookRequest): KomfMetadataJobResponse {
+        return ktor.post("$metadataApiPrefix/identify/book") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
