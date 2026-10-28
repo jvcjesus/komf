@@ -205,7 +205,7 @@ data class MangaBakaConfigDto(
 ) : ProviderConf
 
 @Serializable
-data class MangaBakaCollectionTargetDto(val language: String, val edition: String, val medium: String)
+data class MangaBakaCollectionTargetDto(val language: String, val edition: String, val medium: String, val type: String? = null)
 
 @Serializable
 data class SeriesMetadataConfigDto(

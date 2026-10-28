@@ -78,7 +78,7 @@ data class MangaBakaConfig(
 
 /** All three selectors are required. No cross-edition or cross-medium fallback. */
 @Serializable
-data class MangaBakaCollectionTarget(val language: String, val edition: String, val medium: String)
+data class MangaBakaCollectionTarget(val language: String, val edition: String, val medium: String, val type: String? = null)
 
 @Serializable
 enum class MangaBakaMode {

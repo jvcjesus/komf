@@ -14,6 +14,7 @@ data class MangaBakaCollection(
     val language: JsonElement,
     val edition: JsonElement,
     val medium: String,
+    val type: String? = null,
     @SerialName("count_main") val countMain: Int? = null,
 )
 

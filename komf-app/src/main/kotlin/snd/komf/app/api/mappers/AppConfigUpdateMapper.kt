@@ -245,7 +245,7 @@ class AppConfigUpdateMapper {
                 PatchValue.None -> null
                 PatchValue.Unset -> config.collection
                 is PatchValue.Some -> selection.value.let {
-                    snd.komf.providers.MangaBakaCollectionTarget(it.language, it.edition, it.medium)
+                    snd.komf.providers.MangaBakaCollectionTarget(it.language, it.edition, it.medium, it.type)
                 }
             },
         )

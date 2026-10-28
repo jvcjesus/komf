@@ -59,7 +59,19 @@ class MetadataUpdater(
         require(!book.deleted) { "Cannot update a deleted book" }
         val processed = postProcessor.processBook(book, metadata, seriesMetadata)
         val bookMetadata = requireNotNull(processed.bookMetadata[book])
-        updateBookApiMetadata(book, bookMetadata, processed.seriesMetadata)
+
+        // A single-book identification must not introduce author changes through
+        // Komga's book metadata endpoint. Komga can propagate book author changes
+        // to the containing series, violating the book-only isolation contract.
+        //
+        // Preserve the target book's current author state for this specialized
+        // endpoint while still applying the exact work's other book metadata.
+        val update = metadataUpdateMapper.toBookMetadataUpdate(bookMetadata, processed.seriesMetadata, book).copy(
+            authors = book.metadata.authors,
+            authorsLock = book.metadata.authorsLock,
+        )
+
+        mediaServerClient.updateBookMetadata(book.id, update)
         updateBookThumbnail(book, bookMetadata)
     }
 

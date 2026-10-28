@@ -243,7 +243,7 @@ class AppConfigMapper {
             mode = MangaBakaMode.valueOf(config.mode.name),
             bookMetadata = toDto(config.bookMetadata),
             collection = config.collection?.let {
-                snd.komf.api.config.MangaBakaCollectionTargetDto(it.language, it.edition, it.medium)
+                snd.komf.api.config.MangaBakaCollectionTargetDto(it.language, it.edition, it.medium, it.type)
             },
         )
     }

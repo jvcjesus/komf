@@ -71,10 +71,16 @@ class MangaBakaMetadataProvider(
             it.seriesId == id.value &&
                     it.language.text("iso", "code").equals(target.language.trim(), true) &&
                     it.edition.text("name", "title").equals(target.edition.trim(), true) &&
-                    it.medium.equals(target.medium.trim(), true)
+                    it.medium.equals(target.medium.trim(), true) &&
+                    (target.type == null || it.type?.equals(target.type.trim(), true) == true)
         }
-        require(matches.size == 1) { "Expected exactly one MangaBaka collection for the configured language/edition/medium; found ${matches.size}" }
-        val collection = matches.single()
+        val resolvedMatches = if (matches.size > 1 && target.type == null) {
+            matches.filter { it.type?.equals("volume", true) == true }
+        } else {
+            matches
+        }
+        require(resolvedMatches.size == 1) { "Expected exactly one MangaBaka collection for the configured language/edition/medium; found ${resolvedMatches.size}" }
+        val collection = resolvedMatches.single()
         require(collection.countMain == null || collection.countMain >= 0) { "Invalid collection count_main" }
         val works = dataSource.getWorks(collection.id)
         require(works.map { it.id }.distinct().size == works.size) { "Duplicate MangaBaka work IDs" }
