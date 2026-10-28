@@ -127,7 +127,15 @@ class MangaBakaMetadataProvider(
             if (record.workId != work.id || record.seriesId?.let { it != id.value } == true ||
                 record.language?.equals(collectionTarget?.language?.trim(), true) == false ||
                 record.type?.equals("volume", true) == false) null
-            else record.image.raw?.url ?: record.image.x350?.x3 ?: record.image.x350?.x2 ?: record.image.x350?.x1
+            else {
+                val rawUrl = record.image.raw?.url
+                val rawSize = record.image.raw?.size
+                if (rawUrl != null && (rawSize == null || rawSize <= 1048575)) {
+                    rawUrl
+                } else {
+                    record.image.x350?.x3 ?: record.image.x350?.x2 ?: record.image.x350?.x1 ?: rawUrl
+                }
+            }
         }
         val cover = if (bookConfig.thumbnail && workCoverFetchClient != null && url != null)
             MangaBakaWorkCover.fetch(workCoverFetchClient, url) else null
